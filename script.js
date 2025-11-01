@@ -1,159 +1,163 @@
-// Particle System
-const canvas = document.getElementById('particleCanvas');
-const ctx = canvas.getContext('2d');
-
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-window.addEventListener('resize', () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-});
-
-// Create particles
-const particles = [];
-const particleCount = 50;
-
-for (let i = 0; i < particleCount; i++) {
-    particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5
-    });
-}
-
-let mouseX = 0;
-let mouseY = 0;
+// Mouse Tracker
+const tracker = document.getElementById('tracker');
 
 document.addEventListener('mousemove', (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
+    tracker.style.left = e.clientX + 'px';
+    tracker.style.top = e.clientY + 'px';
 });
 
-function animateParticles() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Update and draw particles
-    particles.forEach(particle => {
-        particle.x += particle.vx;
-        particle.y += particle.vy;
-        
-        // Bounce off edges
-        if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;
-        if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
-        
-        // Draw particle
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, 3, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(76, 175, 80, 0.3)';
-        ctx.fill();
-        
-        // Draw connection to mouse
-        const distance = Math.sqrt(
-            Math.pow(particle.x - mouseX, 2) + 
-            Math.pow(particle.y - mouseY, 2)
-        );
-        
-        if (distance < 150) {
-            ctx.beginPath();
-            ctx.moveTo(particle.x, particle.y);
-            ctx.lineTo(mouseX, mouseY);
-            ctx.strokeStyle = `rgba(76, 175, 80, ${0.2 * (1 - distance / 150)})`;
-            ctx.lineWidth = 1;
-            ctx.stroke();
-        }
-    });
-    
-    requestAnimationFrame(animateParticles);
+// Create Floating Particles
+const particlesContainer = document.getElementById('particles');
+for (let i = 0; i < 12; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    particle.style.left = Math.random() * 100 + '%';
+    particle.style.top = Math.random() * 100 + 'vh';
+    particle.style.animationDelay = Math.random() * 4 + 's';
+    particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+    particlesContainer.appendChild(particle);
 }
 
-animateParticles();
-
 // File Upload Functionality
+const uploadArea = document.getElementById('uploadArea');
 const fileInput = document.getElementById('fileInput');
-const uploadBtn = document.getElementById('uploadBtn');
+const previewContainer = document.getElementById('previewContainer');
+const imagePreview = document.getElementById('imagePreview');
 const analyzeBtn = document.getElementById('analyzeBtn');
-const imageContainer = document.getElementById('imageContainer');
-const placeholderText = document.getElementById('placeholderText');
-const previewImage = document.getElementById('previewImage');
-const progressContainer = document.getElementById('progressContainer');
-const plantName = document.getElementById('plantName');
-const plantNameBox = document.getElementById('plantNameBox');
-const healthStatus = document.getElementById('healthStatus');
-const healthBox = document.getElementById('healthBox');
+const loading = document.getElementById('loading');
+const resultsContainer = document.getElementById('resultsContainer');
+const resetBtn = document.getElementById('resetBtn');
 
-let uploadedImage = null;
+// Check if elements exist (for pages without upload functionality)
+if (uploadArea && fileInput) {
+    // Click to upload
+    uploadArea.addEventListener('click', () => {
+        fileInput.click();
+    });
 
-uploadBtn.addEventListener('click', () => {
-    fileInput.click();
-});
+    // Drag and drop
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#457b67';
+        uploadArea.style.background = 'linear-gradient(135deg, rgba(139, 195, 174, 0.18) 0%, rgba(163, 177, 138, 0.12) 100%)';
+    });
 
-fileInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    
-    if (file) {
+    uploadArea.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '';
+        uploadArea.style.background = '';
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '';
+        uploadArea.style.background = '';
+        
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) {
+            displayImage(file);
+        }
+    });
+
+    // File input change
+    fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            displayImage(file);
+        }
+    });
+
+    // Display selected image
+    function displayImage(file) {
         const reader = new FileReader();
-        
-        reader.onload = (event) => {
-            uploadedImage = event.target.result;
-            previewImage.src = uploadedImage;
-            previewImage.style.display = 'block';
-            placeholderText.style.display = 'none';
-            analyzeBtn.disabled = false;
-            
-            // Reset results
-            plantName.textContent = 'Waiting for analysis...';
-            plantNameBox.style.background = '#F0FFF0';
-            healthStatus.textContent = 'Unknown';
-            healthBox.className = 'result-box health-box';
+        reader.onload = (e) => {
+            imagePreview.src = e.target.result;
+            previewContainer.classList.add('active');
+            uploadArea.style.display = 'none';
         };
-        
         reader.readAsDataURL(file);
+    }
+
+    // Analyze button
+    if (analyzeBtn) {
+        analyzeBtn.addEventListener('click', () => {
+            previewContainer.style.display = 'none';
+            loading.classList.add('active');
+
+            // Simulate AI analysis (replace with actual model later)
+            setTimeout(() => {
+                loading.classList.remove('active');
+                resultsContainer.classList.add('active');
+                resetBtn.classList.add('active');
+
+                // Demo results
+                document.getElementById('plantName').textContent = 'Tomato Plant';
+                document.getElementById('healthStatus').textContent = 'Healthy';
+                document.getElementById('confidence').textContent = '95%';
+            }, 2500);
+        });
+    }
+
+    // Reset button
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            fileInput.value = '';
+            imagePreview.src = '';
+            previewContainer.classList.remove('active');
+            resultsContainer.classList.remove('active');
+            resetBtn.classList.remove('active');
+            uploadArea.style.display = 'block';
+            loading.classList.remove('active');
+        });
+    }
+}
+
+// Active navigation link
+const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+const navLinks = document.querySelectorAll('.nav-link');
+
+navLinks.forEach(link => {
+    const href = link.getAttribute('href');
+    if (href === currentPage || (currentPage === '' && href === 'index.html')) {
+        link.classList.add('active');
+    } else {
+        link.classList.remove('active');
     }
 });
 
-analyzeBtn.addEventListener('click', () => {
-    // Disable buttons during analysis
-    analyzeBtn.disabled = true;
-    uploadBtn.disabled = true;
-    
-    // Show progress bar
-    progressContainer.style.display = 'block';
-    
-    // Simulate analysis (replace with actual model call)
-    setTimeout(() => {
-        showResults();
-    }, 2000);
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
 });
 
-function showResults() {
-    // Hide progress bar
-    progressContainer.style.display = 'none';
-    
-    // Simulated results - replace with actual model results
-    plantName.textContent = 'Aloe Vera';
-    
-    // Random health status for demo
-    const healthStatuses = [
-        { text: '✓ Healthy & Excellent', class: 'health-healthy' },
-        { text: '⚠ Needs Attention', class: 'health-warning' },
-        { text: '✗ Unhealthy', class: 'health-unhealthy' }
-    ];
-    
-    const randomStatus = healthStatuses[Math.floor(Math.random() * healthStatuses.length)];
-    healthStatus.textContent = randomStatus.text;
-    healthBox.className = 'result-box health-box ' + randomStatus.class;
-    
-    // Re-enable buttons
-    analyzeBtn.disabled = false;
-    uploadBtn.disabled = false;
-}
+// Add entrance animations on scroll
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -100px 0px'
+};
 
-// Add this function when you integrate your ML model
-function analyzeWithModel(imageData) {
-    // Your model code here
-    // Example:
-    // const result = model.predict(imageData);
-    // return result;
-}
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+        }
+    });
+}, observerOptions);
+
+// Observe elements for animation
+document.querySelectorAll('.about-card, .feature-card-detailed, .result-card').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(30px)';
+    el.style.transition = 'all 0.6s ease';
+    observer.observe(el);
+});

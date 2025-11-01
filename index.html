@@ -3,73 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartLeaf - Plant Health Analysis</title>
+    <title>SmartLeaf - AI Plant Health Analysis</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Particle Canvas -->
-    <canvas id="particleCanvas"></canvas>
-
+    <div id="tracker"></div>
+    <div id="particles"></div>
+    
     <!-- Header -->
-    <header class="header">
-        <div class="header-content">
-            <img src="smartleaf-logo.jpg" alt="SmartLeaf Logo" class="logo">
-            <div class="header-text">
-                <h1 class="title">SmartLeaf</h1>
-                <p class="subtitle">AI-Powered Plant Health Analysis</p>
+    <header class="site-header">
+        <div class="header-container">
+            <div class="logo-section">
+                <img src="logoo.png" alt="SmartLeaf Logo" class="logo-img">
+                <span class="logo-text">SmartLeaf</span>
             </div>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-link active">Home</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="features.html" class="nav-link">Features</a>
+            </nav>
         </div>
     </header>
 
-    <!-- Main Container -->
-    <main class="main-container">
-        <!-- Upload Panel -->
-        <div class="panel upload-panel">
-            <h2 class="panel-title">Upload a Clear Leaf Image</h2>
-            
-            <div class="image-container" id="imageContainer">
-                <span class="placeholder-text" id="placeholderText">Upload plant leaf image</span>
-                <img id="previewImage" class="preview-image" style="display: none;">
+    <div class="container">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <h1 class="hero-title">Discover Your Plant's Health</h1>
+            <p class="hero-description">Advanced AI technology that identifies plant species and analyzes health conditions instantly. Simply upload a leaf photo and get comprehensive insights.</p>
+        </section>
+
+        <!-- Main Analysis Card -->
+        <div class="main-card">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">🌿</div>
+                <div class="upload-text">Drop your plant image here</div>
+                <div class="upload-hint">or click to browse</div>
+                <div class="supported-formats">JPG, PNG, WEBP • Max 10MB</div>
+                <input type="file" id="fileInput" accept="image/*">
             </div>
 
-            <input type="file" id="fileInput" accept="image/*" style="display: none;">
-            
-            <button class="btn btn-upload" id="uploadBtn">
-                Choose Image
-            </button>
-            
-            <button class="btn btn-analyze" id="analyzeBtn" disabled>
-                Analyze Plant
-            </button>
-        </div>
-
-        <!-- Result Panel -->
-        <div class="panel result-panel">
-            <h2 class="panel-title">Analysis Results</h2>
-            
-            <div class="progress-container" id="progressContainer" style="display: none;">
-                <div class="progress-bar"></div>
+            <div class="preview-container" id="previewContainer">
+                <div class="image-wrapper">
+                    <img id="imagePreview" class="image-preview" alt="Image Preview">
+                </div>
+                <button class="analyze-btn" id="analyzeBtn">
+                    <span class="btn-icon">🔍</span>
+                    <span>Analyze Now</span>
+                </button>
             </div>
 
-            <div class="result-section">
-                <p class="result-label">Plant Name:</p>
-                <div class="result-box" id="plantNameBox">
-                    <span id="plantName">Waiting for analysis...</span>
+            <div class="loading" id="loading">
+                <div class="loader-wrapper">
+                    <div class="loader"></div>
+                </div>
+                <div class="loading-text">Analyzing your plant...</div>
+                <div class="loading-subtext">Our AI is examining the image</div>
+            </div>
+
+            <div class="results-container" id="resultsContainer">
+                <div class="results-header">
+                    <h2>Analysis Complete</h2>
+                    <div class="results-badge">✓ Success</div>
+                </div>
+                
+                <div class="results-grid">
+                    <div class="result-card">
+                        <div class="result-icon">🌱</div>
+                        <div class="result-label">Plant Species</div>
+                        <div class="result-value" id="plantName">-</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-icon">💚</div>
+                        <div class="result-label">Health Status</div>
+                        <div class="result-value" id="healthStatus">-</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-icon">📊</div>
+                        <div class="result-label">Confidence</div>
+                        <div class="result-value" id="confidence">-</div>
+                    </div>
+                </div>
+
+                <div class="recommendations">
+                    <h3>💡 Care Tips</h3>
+                    <div class="recommendations-list">
+                        <div class="tip-item">
+                            <span class="tip-icon">💧</span>
+                            <span>Water regularly, keep soil moist but not waterlogged</span>
+                        </div>
+                        <div class="tip-item">
+                            <span class="tip-icon">☀️</span>
+                            <span>Provide 6-8 hours of sunlight daily</span>
+                        </div>
+                        <div class="tip-item">
+                            <span class="tip-icon">🌡️</span>
+                            <span>Maintain temperature between 18-24°C</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="result-section">
-                <p class="result-label">Health Status:</p>
-                <div class="result-box health-box" id="healthBox">
-                    <span id="healthStatus">Unknown</span>
-                </div>
-            </div>
-
-            <div class="tips-box">
-                <p>💡 Tip: Use a clear image with good lighting for best results</p>
+            <div class="actions-container">
+                <button class="reset-btn" id="resetBtn">
+                    <span>↻</span> Analyze Another Plant
+                </button>
             </div>
         </div>
-    </main>
+
+        <!-- Quick Features -->
+        <section class="quick-features">
+            <div class="feature-badge">
+                <span class="badge-icon">⚡</span>
+                <span>Instant Results</span>
+            </div>
+            <div class="feature-badge">
+                <span class="badge-icon">🎯</span>
+                <span>AI-Powered</span>
+            </div>
+            <div class="feature-badge">
+                <span class="badge-icon">🔒</span>
+                <span>100% Private</span>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3>SmartLeaf</h3>
+                <p>Making plant care accessible through AI technology</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 SmartLeaf. Empowering plant lovers with technology.</p>
+        </div>
+    </footer>
 
     <script src="script.js"></script>
 </body>
